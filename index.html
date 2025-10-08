@@ -1,377 +1,252 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Mission Shakti Certificate Generator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mission Shakti Certificate Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-<!-- html2canvas for PNG export -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --w: 1018px;
+      --h: 768px;
+    }
 
-<style>
-  :root{
-    --w: 1000px;   /* certificate design width */
-    --h: 700px;    /* certificate design height */
-  }
+    body {
+      font-family: "Noto Sans", Arial, sans-serif;
+      margin: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f2f2f2;
+    }
 
-  body{
-    font-family: "Noto Sans", Arial, sans-serif;
-    margin: 20px;
-    display: flex;
-    gap: 24px;
-    flex-direction: column;
-    align-items: center;
-    background: #f2f2f2;
-  }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
 
-  .controls{
-    display:flex;
-    gap:12px;
-    flex-wrap:wrap;
-    align-items:center;
-  }
+    label {
+      font-size: 14px;
+    }
 
-  label{ font-size:14px; }
-  input[type="text"]{
-    padding:8px 10px;
-    font-size:14px;
-    width:260px;
-  }
-  button{
-    padding:8px 14px;
-    font-size:14px;
-    cursor:pointer;
-  }
+    input[type="text"] {
+      padding: 8px 10px;
+      font-size: 14px;
+      width: 260px;
+    }
 
-  /* Certificate container sized to design. Use your background image file. */
-  .certificate-wrap{
-    width: var(--w);
-    height: var(--h);
-    position: relative;
-    border-radius:6px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-    background-image: url('certificate-bg.png'); /* <-- put your background image (the picture) here */
-    background-size: cover;
-    background-position: center;
-    overflow: hidden;
-  }
+    button {
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
 
-  /* Overlay text. Use absolute positioning to match coordinates in the image */
-  .overlay{
-    position: absolute;
-    left: 0; top: 0;
-    width:100%; height:100%;
-    pointer-events:none; /* so you can click controls if placed over it */
-  }
+    .certificate-wrap {
+      width: var(--w);
+      height: var(--h);
+      position: relative;
+      background-image: url('certificate-b.png');
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
 
-  /* Header Date top-left - fixed position as in picture */
-  .date{
-    position: absolute;
-    left: 34px; /* tweak these values to exactly match your background */
-    top: 22px;
-    font-weight:600;
-    font-size:14px;
-    background: rgba(255,255,255,0); /* transparent */
-    color:#222;
-    pointer-events:auto;
-  }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
 
-  /* Certificate title center area */
-  .title{
-    position: absolute;
-    top: 82px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size:28px;
-    font-weight:800;
-    letter-spacing:1px;
-    text-align:center;
-    color:#000;
-    pointer-events:auto;
-  }
+    .date {
+      position: absolute;
+      top: 30px;
+      left: 120px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #222;
+    }
 
-  /* Name field (big) */
-  .name{
-    position: absolute;
-    top: 140px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 78%;
-    text-align:center;
-    font-size:28px;
-    font-weight:700;
-    color:#111;
-    pointer-events:auto;
-    word-wrap: break-word;
-  }
+    .title {
+      position: absolute;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 28px;
+      font-weight: 700;
+      color: #000;
+    }
 
-  /* Father/Husband name inline */
-  .father{
-    position: absolute;
-    top: 190px;
-    left: 8%;
-    width: 84%;
-    font-size:16px;
-    color:#222;
-    line-height:1.35;
-    pointer-events:auto;
-  }
+    .name {
+      position: absolute;
+      top: 150px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 22px;
+      font-weight: 600;
+      color: #000;
+      text-align: center;
+      width: 80%;
+    }
 
-  /* Body paragraph block */
-  .body-text{
-    position: absolute;
-    left: 8%;
-    right: 8%;
-    top: 240px;
-    font-size:15px;
-    color:#222;
-    text-align:justify;
-    line-height:1.4;
-    pointer-events:auto;
-  }
+    .father {
+      position: absolute;
+      top: 200px;
+      left: 120px;
+      width: 780px;
+      font-size: 15px;
+      color: #222;
+      line-height: 1.5;
+      text-align: justify;
+    }
 
-  /* QR/Link placeholder center bottom */
-  .qr{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:95px;
-    font-size:12px;
-    color:#222;
-    pointer-events:auto;
-  }
+    .body-text {
+      position: absolute;
+      top: 270px;
+      left: 120px;
+      width: 780px;
+      font-size: 15px;
+      color: #222;
+      text-align: justify;
+      line-height: 1.5;
+    }
 
-  /* Signature area bottom-left and bottom-right */
-  .sign-left{
-    position:absolute;
-    left:86px;
-    bottom:28px;
-    font-size:14px;
-    text-align:left;
-    pointer-events:auto;
-  }
-  .sign-right{
-    position:absolute;
-    right:86px;
-    bottom:28px;
-    font-size:14px;
-    text-align:right;
-    pointer-events:auto;
-  }
+    .qr {
+      position: absolute;
+      bottom: 105px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #444;
+    }
 
-  /* Reference number near bottom center, above footer */
-  .refno{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:60px;
-    font-size:13px;
-    font-weight:700;
-    color:#111;
-    pointer-events:auto;
-  }
+    .refno {
+      position: absolute;
+      bottom: 75px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: 600;
+      color: #000;
+    }
 
-  /* Visible form inputs overlay area (not printed) */
-  .controls-wrapper{
-    display:flex;
-    gap:12px;
-    align-items:center;
-  }
+    .sign-left {
+      position: absolute;
+      bottom: 20px;
+      left: 100px;
+      font-size: 13px;
+      text-align: left;
+    }
 
-  /* when printing, hide the controls and only print certificate */
-  @media print{
-    body * { visibility: hidden; }
-    .certificate-wrap, .certificate-wrap * { visibility: visible; }
-    .certificate-wrap { position: absolute; top: 0; left: 0; }
-  }
+    .sign-right {
+      position: absolute;
+      bottom: 20px;
+      right: 100px;
+      font-size: 13px;
+      text-align: right;
+    }
 
-  /* small responsive */
-  @media (max-width:1100px){
-    :root { --w: 900px; --h:630px; }
-    .certificate-wrap{ transform: scale(0.9); transform-origin: top center; }
-  }
-</style>
+    @media print {
+      body * { visibility: hidden; }
+      .certificate-wrap, .certificate-wrap * { visibility: visible; }
+      .certificate-wrap { position: absolute; top: 0; left: 0; }
+    }
+  </style>
 </head>
 <body>
 
-<h2>Mission Shakti — Certificate Generator</h2>
+  <h2>🎓 Mission Shakti Certificate Generator</h2>
 
-<div class="controls">
-  <div class="controls-wrapper">
-    <label for="personName">Name:</label>
-    <input id="personName" type="text" placeholder="Enter full name" />
+  <div class="controls">
+    <label>नाम:</label>
+    <input type="text" id="personName" placeholder="अपना नाम दर्ज करें" />
+
+    <label>पिता/पति का नाम:</label>
+    <input type="text" id="fatherName" placeholder="पिता/पति का नाम दर्ज करें" />
+
+    <button onclick="generateCertificate()">Generate</button>
+    <button onclick="window.print()">Print</button>
+    <button onclick="downloadPNG()">Download PNG</button>
+    <button onclick="resetCounter()">Reset Counter</button>
   </div>
 
-  <div class="controls-wrapper">
-    <label for="fatherName">Father/Husband Name:</label>
-    <input id="fatherName" type="text" placeholder="Enter father/husband name" />
+  <div class="certificate-wrap" id="certificate">
+    <div class="overlay">
+      <div class="date" id="dateField">Date: --/--/----</div>
+      <div class="title">प्रशस्ति पत्र</div>
+      <div class="name" id="nameField">{{NAME}}</div>
+      <div class="father" id="fatherField">
+        पिता/पति का नाम श्री <span id="fatherSpan">{{FATHER_OR_HUSBAND_NAME}}</span> को मिशन शक्ति के अंतर्गत उत्कृष्ट कार्य, निष्ठा, और समाज में महिला सशक्तिकरण के प्रति आपके समर्पण के लिए हार्दिक अभिनंदन।
+      </div>
+      <div class="body-text">
+        आपकी सक्रिय भागीदारी, जागरूकता अभियानों में योगदान तथा महिलाओं की सुरक्षा एवं सम्मान के लिए आपका निरंतर प्रयास प्रशंसनीय है। आपके इसी उत्साह और कर्मठता से "मिशन शक्ति" अपने उद्देश्यों की प्राप्ति में निरंतर आगे बढ़ रहा है। आपको इस उत्कृष्ट योगदान के लिए यह प्रशस्ति-पत्र प्रदान किया जाता है। नगर पंचायत उदाहरण, जनपद कासगंज की ओर से आपके उज्जवल भविष्य की हार्दिक शुभकामनाएँ।
+      </div>
+      <div class="qr" id="qrField">Ref ID: --/KSJ/0</div>
+      <div class="refno" id="refNo">Ref: --/KSJ/0</div>
+
+      <div class="sign-left">
+        <div style="color:#1a73e8; font-style:italic;">Signature</div>
+        <strong>अधिशासी अधिकारी</strong><br/>
+        नगर पंचायत उदाहरण, कासगंज।
+      </div>
+
+      <div class="sign-right">
+        <div style="color:#1a73e8; font-style:italic; text-align:right;">Signature</div>
+        <strong>अध्यक्ष</strong><br/>
+        नगर पंचायत उदाहरण, कासगंज।
+      </div>
+    </div>
   </div>
 
-  <button id="generateBtn">Generate Certificate</button>
-  <button id="printBtn">Print</button>
-  <button id="downloadBtn">Download PNG</button>
-  <button id="resetCount">Reset Counter</button>
-</div>
-
-<!-- The certificate -->
-<div id="certificate" class="certificate-wrap" aria-label="Certificate">
-  <div class="overlay" id="overlay">
-    <div class="date" id="dateField">Date: --/--/----</div>
-
-    <div class="title">प्रशस्ति पत्र</div>
-
-    <div class="name" id="nameField">{{NAME}}</div>
-
-    <div class="father" id="fatherField">पिता/पति का नाम श्री <span style="font-weight:700" id="fatherNameDisplay">{{FATHER_OR_HUSBAND_NAME}}</span> को मिशन शक्ति के अंतर्गत उत्कृष्ट कार्य, निष्ठा, और समाज में महिला सशक्तिकरण के प्रति आपके समर्पण के लिए हार्दिक अभिनंदन।</div>
-
-    <div class="body-text" id="bodyText">
-      आपकी सक्रिय भागीदारी, जागरूकता अभियानों में योगदान तथा महिलाओं की सुरक्षा एवं सम्मान के लिए आपका निरंतर प्रयास प्रशंसनीय है। आपके इसी उत्साह और कर्मठता से "मिशन शक्ति" अपने उद्देश्यों की प्राप्ति में निरंतर आगे बढ़ रहा है। आपको इस उत्कृष्ट योगदान के लिए यह प्रशस्ति-पत्र प्रदान किया जाता है। नगर पंचायत उदहारण, जनपद कासगंज की ओर से आपके उज्जवल भविष्य की हार्दिक शुभकामनाएँ।
-    </div>
-
-    <div class="qr" id="qrField">{{QRLINK}}</div>
-
-    <div class="refno" id="refNo">Ref: --/KSJ/0</div>
-
-    <div class="sign-left">
-      <div style="margin-bottom:8px;color:#1a73e8;font-style:italic;">Signature</div>
-      <div style="font-weight:700">अधिशासी अधिकारी</div>
-      <div>नगर पंचायत उदाहरण, कासगंज</div>
-    </div>
-
-    <div class="sign-right">
-      <div style="margin-bottom:8px;color:#1a73e8;font-style:italic; text-align:right;">Signature</div>
-      <div style="font-weight:700">अध्यक्ष</div>
-      <div>नगर पंचायत उदाहरण, कासगंज</div>
-    </div>
-
-  </div>
-</div>
-
-<script>
-  // Initialization and helpers
-  const dateField = document.getElementById('dateField');
-  const nameField = document.getElementById('nameField');
-  const fatherField = document.getElementById('fatherField');
-  const refNoField = document.getElementById('refNo');
-  const qrField = document.getElementById('qrField');
-
-  // Input elements
-  const personInput = document.getElementById('personName');
-  const fatherInput = document.getElementById('fatherName');
-
-  // Format date as DD/MM/YYYY
-  function formatDate(d){
-    const dd = String(d.getDate()).padStart(2,'0');
-    const mm = String(d.getMonth()+1).padStart(2,'0');
-    const yyyy = d.getFullYear();
-    return dd + '/' + mm + '/' + yyyy;
-  }
-
-  // Load today's date into the top-left fixed position
-  function setTodaysDate(){
-    const now = new Date();
-    dateField.textContent = 'Date: ' + formatDate(now);
-  }
-
-  // Certificate counter stored in localStorage
-  const STORAGE_KEY = 'mission_shakti_cert_count_v1';
-  function getCount(){
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const n = raw ? parseInt(raw,10) : 0;
-    return Number.isNaN(n) ? 0 : n;
-  }
-  function incrementCount(){
-    const n = getCount() + 1;
-    localStorage.setItem(STORAGE_KEY, String(n));
-    return n;
-  }
-  function resetCount(){
-    localStorage.setItem(STORAGE_KEY, '0');
-  }
-
-  // Build reference number: TIMESTAMP/KSJ/<digit>
-  function buildRefNumber(counter){
-    const ts = Date.now(); // numeric timestamp
-    return ts + '/KSJ/' + counter;
-  }
-
-  // Generate certificate: fill name and father, increment counter, set ref no
-  function generateCertificate(){
-    const person = personInput.value.trim() || '{{NAME}}';
-    const father = fatherInput.value.trim() || '{{FATHER_OR_HUSBAND_NAME}}';
-
-    nameField.textContent = person;
-    // Replace placeholder inside fatherField, keep rest of sentence
-    const before = 'पिता/पति का नाम श्री ';
-    const after = ' को मिशन शक्ति के अंतर्गत उत्कृष्ट कार्य, निष्ठा, और समाज में महिला सशक्तिकरण के प्रति आपके समर्पण के लिए हार्दिक अभिनंदन।';
-    fatherField.innerHTML = before + '<span style="font-weight:700">' + escapeHtml(father) + '</span>' + after;
-
-    // Increase counter and update Ref
-    const counter = incrementCount();
-    refNoField.textContent = 'Ref: ' + buildRefNumber(counter);
-
-    // Optional: set QR/link placeholder (here we set a small text with ref)
-    qrField.textContent = 'Ref ID: ' + buildRefNumber(counter);
-  }
-
-  // Simple HTML escape for insertion into innerHTML
-  function escapeHtml(s){
-    return s.replace(/[&<>"']/g, function(m){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
-    });
-  }
-
-  // Print button
-  document.getElementById('printBtn').addEventListener('click', function(){
-    window.print();
-  });
-
-  // Download PNG using html2canvas
-  document.getElementById('downloadBtn').addEventListener('click', function(){
-    const el = document.getElementById('certificate');
-    // temporarily scale down controls not to show
-    html2canvas(el, {scale:2, useCORS:true}).then(canvas => {
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'certificate.png';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }).catch(err => {
-      alert('Error generating image: ' + err);
-    });
-  });
-
-  // Generate button
-  document.getElementById('generateBtn').addEventListener('click', function(){
-    generateCertificate();
-  });
-
-  // Reset counter (for testing)
-  document.getElementById('resetCount').addEventListener('click', function(){
-    if(confirm('Reset certificate counter to zero?')) {
-      resetCount();
-      alert('Counter reset. Next generated certificate will be 1.');
-    }
-  });
-
-  // On load: set date and initial ref (based on current count if any)
-  window.addEventListener('DOMContentLoaded', function(){
-    setTodaysDate();
-    const cnt = getCount();
-    if(cnt > 0){
-      refNoField.textContent = 'Ref: ' + buildRefNumber(cnt);
-      qrField.textContent = 'Ref ID: ' + buildRefNumber(cnt);
-    } else {
-      refNoField.textContent = 'Ref: --/KSJ/0';
+  <script>
+    function formatDate(d) {
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yyyy = d.getFullYear();
+      return dd + '/' + mm + '/' + yyyy;
     }
 
-    // optional: fill sample default name placeholders
-    nameField.textContent = '{{NAME}}';
-    fatherField.innerHTML = 'पिता/पति का नाम श्री <span style="font-weight:700">{{FATHER_OR_HUSBAND_NAME}}</span> को मिशन शक्ति के अंतर्गत उत्कृष्ट कार्य...';
-  });
+    function setDate() {
+      const now = new Date();
+      document.getElementById('dateField').textContent = 'Date: ' + formatDate(now);
+    }
 
-</script>
-</body>
-</html>
+    const STORAGE_KEY = 'mission_shakti_cert_counter';
+    function getCount() {
+      return parseInt(localStorage.getItem(STORAGE_KEY) || '0');
+    }
+    function incrementCount() {
+      const newCount = getCount() + 1;
+      localStorage.setItem(STORAGE_KEY, newCount);
+      return newCount;
+    }
+    function resetCounter() {
+      if (confirm("Reset certificate counter to zero?")) {
+        localStorage.setItem(STORAGE_KEY, '0');
+        alert("Counter reset.");
+      }
+    }
+
+    function generateCertificate() {
+      const name = document.getElementById('personName').value.trim();
+      const father = document.getElementById('fatherName').value.trim();
+      document.getElementById('nameField').textContent = name || '{{NAME}}';
+      document.getElementById('fatherSpan').textContent = father || '{{FATHER_OR_HUSBAND_NAME}}';
+
+      const count = incrementCount();
+      const ref = `${Date.now()}/KSJ/${count}`;
+      document.getElementById('refNo').textContent = 'Ref: ' + ref;
+      document.getElementById('qrField').textContent = 'Ref ID: ' + ref;
+
+      setDate();
+    }
+
+    function downloadPNG() {
+      html2canvas(document.getElementById("certificate"), { scale: 2 }).then(canvas => {
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image
