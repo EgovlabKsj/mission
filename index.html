@@ -49,7 +49,7 @@
       width: var(--w);
       height: var(--h);
       position: relative;
-      background-image: url('certificate-b.png');
+      background-image: url('certificate-b.png'); /* Replace with your certificate image */
       background-size: cover;
       background-position: center;
       overflow: hidden;
@@ -205,8 +205,8 @@
 
   <script>
     function formatDate(d) {
-      const dd = String(d.getDate()).padStart(2,'0');
-      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
       const yyyy = d.getFullYear();
       return dd + '/' + mm + '/' + yyyy;
     }
@@ -217,14 +217,17 @@
     }
 
     const STORAGE_KEY = 'mission_shakti_cert_counter';
+
     function getCount() {
       return parseInt(localStorage.getItem(STORAGE_KEY) || '0');
     }
+
     function incrementCount() {
       const newCount = getCount() + 1;
       localStorage.setItem(STORAGE_KEY, newCount);
       return newCount;
     }
+
     function resetCounter() {
       if (confirm("Reset certificate counter to zero?")) {
         localStorage.setItem(STORAGE_KEY, '0');
